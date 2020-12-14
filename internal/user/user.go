@@ -14,6 +14,10 @@ func (u *User) GetOutChannel() chan message.IMessage {
 	return u.out
 }
 
-func (u *User) GetFocusedGroup() string {
-	return u.focused
+func (u *User) GetCurrentUserGroup() string {
+	return u.currentGroup
+}
+
+func (u *User) SetCurrentUserGroup(groupName string) {
+	u.currentGroup = groupName
 }

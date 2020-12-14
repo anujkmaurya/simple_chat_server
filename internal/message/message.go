@@ -26,5 +26,5 @@ func (message *Message) GetCreatedAt() time.Time {
 }
 
 func (message *Message) String() string {
-	return fmt.Sprintf("{Time:%s, Channel:%s, Sender:%s, Message:%s}\n", message.createdAt.Format("20060102150405"), message.channelName, message.senderName, message.text)
+	return fmt.Sprintf("{Time:%s, Channel:%s, Sender:%s, Message:%s}\n", message.createdAt.Format("2006-01-02 15:04:05"), message.channelName, message.senderName, message.text)
 }

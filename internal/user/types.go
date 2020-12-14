@@ -6,8 +6,8 @@ import (
 
 type (
 	User struct {
-		name    string
-		out     chan message.IMessage
-		focused string
+		name         string
+		out          chan message.IMessage
+		currentGroup string
 	}
 )

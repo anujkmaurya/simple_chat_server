@@ -1,24 +1,14 @@
 package config
 
-import (
-	"time"
-)
-
 type (
 	Config struct {
-		Server  ServerConfig
-		Timeout time.Duration
-		Log     LogConfig
+		Server ServerConfig
+		Log    LogConfig
 	}
 
 	ServerConfig struct {
-		Host              string
-		AppHost           string
-		Port              string
-		TemplatePath      string
-		Timeout           time.Duration
-		PingClientTimeout time.Duration
-		LocalIP           string
+		Host string
+		Port string
 	}
 
 	LogConfig struct {

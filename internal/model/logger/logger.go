@@ -19,7 +19,8 @@ func InitLogger(logfilePath string) error {
 		log.Printf("error in opening file: %v", err)
 		return err
 	}
-	// defer logFile.Close()
+
 	log.SetOutput(logFile)
+
 	return nil
 }

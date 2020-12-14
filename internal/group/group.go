@@ -27,7 +27,7 @@ func (g *Group) RemoveUserFromGroup(userName string) {
 }
 
 func (group *Group) CreateSystemMessage(text string) message.IMessage {
-	return message.CreateMessage("System", group.groupName, text)
+	return message.CreateMessage("System", group.groupName, text, "")
 }
 
 func (g *Group) GetSubscribedUsers() map[string]string {

@@ -6,5 +6,6 @@ type IUser interface {
 	GetUserName() string
 	SendMessageToUser(message message.IMessage)
 	GetOutChannel() chan message.IMessage
-	GetFocusedGroup() string
+	GetCurrentUserGroup() string
+	SetCurrentUserGroup(groupName string)
 }

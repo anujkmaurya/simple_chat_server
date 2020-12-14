@@ -8,9 +8,9 @@ import (
 func New(name string) IUser {
 
 	return &User{
-		name:    name,
-		out:     make(chan message.IMessage, model.MaxUserMessageQueueLen),
-		focused: "GENERAL",
+		name:         name,
+		out:          make(chan message.IMessage, model.MaxUserMessageQueueLen),
+		currentGroup: "COMMON",
 	}
 
 }
