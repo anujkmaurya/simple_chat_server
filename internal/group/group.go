@@ -33,3 +33,7 @@ func (group *Group) CreateSystemMessage(text string) message.IMessage {
 func (g *Group) GetSubscribedUsers() map[string]string {
 	return g.users
 }
+
+func (g *Group) GetSubscribedUsersCount() int {
+	return len(g.users)
+}

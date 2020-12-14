@@ -39,8 +39,13 @@ func (chatManager *ChatManager) LeaveGroup(userName string, channelName string) 
 		if chatManager.users[userName].GetCurrentUserGroup() == channelName {
 			user := chatManager.users[userName]
 			user.SetCurrentUserGroup("COMMON")
-			// chatManager.users[userName] = userObj
 		}
+
+		if chatManager.groupList[channelName].GetSubscribedUsersCount() == 0 {
+			//remove the group from list
+			delete(chatManager.groupList, channelName)
+		}
+
 	}
 
 }
@@ -84,7 +89,7 @@ func (chatManager *ChatManager) HandleInput(input string, userName string, chann
 		return message.CreateMessage(
 			"SYSTEM",
 			"COMMON",
-			"You successfully unjoined the group "+commandArr[1],
+			"You successfully left the group "+commandArr[1],
 			userName)
 
 	default:

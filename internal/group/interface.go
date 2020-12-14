@@ -9,4 +9,5 @@ type IGroup interface {
 	RemoveUserFromGroup(userName string)
 	CreateSystemMessage(text string) message.IMessage
 	GetSubscribedUsers() map[string]string
+	GetSubscribedUsersCount() int
 }
