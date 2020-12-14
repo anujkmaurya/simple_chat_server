@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 )
 
-func initLogger(logfilePath string) error {
+func InitLogger(logfilePath string) error {
 
 	err := os.MkdirAll(filepath.Dir(logfilePath), 0755)
 	if err != nil && err != os.ErrExist {
@@ -19,7 +19,7 @@ func initLogger(logfilePath string) error {
 		log.Printf("error in opening file: %v", err)
 		return err
 	}
-	defer logFile.Close()
+	// defer logFile.Close()
 	log.SetOutput(logFile)
 	return nil
 }

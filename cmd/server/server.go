@@ -1,19 +1,15 @@
 package main
 
 import (
+	"os"
+	"simple_chat_server/config"
 	"simple_chat_server/internal/chatmanager"
 	"simple_chat_server/internal/group"
-
-	// "fmt"
+	"simple_chat_server/internal/model"
+	"simple_chat_server/internal/model/logger"
 
 	"log"
 	"net"
-	// "os"
-	// "strings"
-	// "time"
-	// "simple_chat_server/internal/model/user"
-	// "simple_chat_server/internal/message"
-	// "simple_chat_server/internal/model/chatmanager"
 )
 
 func main() {
@@ -22,9 +18,21 @@ func main() {
 }
 
 func startApp() {
-	port := "9000"
 
-	// server, err := net.Listen("tcp", ":"+os.Getenv("PORT"))
+	environment := os.Getenv("TKPENV")
+	if environment == "" {
+		environment = model.EnvDevelopemnt
+	}
+
+	cfg := config.Init(environment)
+
+	err := logger.InitLogger(cfg.Log.Path)
+	if err != nil {
+		log.Fatalf("Failed to initialise logger %+v\n", err)
+	}
+
+	port := cfg.Server.Port
+
 	server, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		log.Fatalln(err.Error())
