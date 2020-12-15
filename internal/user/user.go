@@ -20,4 +20,12 @@ func (u *User) GetCurrentUserGroup() string {
 
 func (u *User) SetCurrentUserGroup(groupName string) {
 	u.currentGroup = groupName
+	//if group already not present, add it to users's group map
+	if _, ok := u.groups[groupName]; !ok {
+		u.groups[groupName] = struct{}{}
+	}
+}
+
+func (u *User) GetAllUserGroups() map[string]struct{} {
+	return u.groups
 }

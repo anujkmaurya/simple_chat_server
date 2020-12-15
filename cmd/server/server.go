@@ -44,8 +44,6 @@ func startApp() {
 	}
 	defer server.Close()
 
-	log.Println("server started ")
-
 	chatManager := chatmanager.New()
 
 	chatManager.AddGroup(group.New("COMMON"))
@@ -76,29 +74,35 @@ func HandleUserConnection(chatManager chatmanager.IChatManager, conn net.Conn) {
 	io.WriteString(conn, iGroup.CreateSystemMessage("Welcome to Chat Groups, please choose an username: ").String())
 
 	for {
-		scanner.Scan()
-		userName = scanner.Text()
-		fmt.Println("username: ", userName)
+		if scanner.Scan() {
 
-		if _, err := chatManager.GetUser(userName); err != nil {
+			userName = scanner.Text()
+			if _, err := chatManager.GetUser(userName); err != nil {
 
-			chatManager.AddUser(user.New(userName))
+				chatManager.AddUser(user.New(userName))
 
-			io.WriteString(conn, iGroup.CreateSystemMessage("Thanks for joining us. Type /help for a list of commands.").String())
+				io.WriteString(conn, iGroup.CreateSystemMessage("Thanks for joining us. Type /help for a list of commands.").String())
 
-			break
+				break
+			}
+			io.WriteString(conn, iGroup.CreateSystemMessage("Sorry that user name is taken Please choose another one:").String())
+		} else {
+			log.Println("[Err] client disconnected")
+			return
 		}
-		io.WriteString(conn, iGroup.CreateSystemMessage("Sorry that user name is taken Please choose another one:").String())
 	}
-
-	defer func() {
-		chatManager.RemoveUser(userName)
-	}()
 
 	chatManager.JoinGroup(userName, "COMMON")
 
 	go func() {
+		//remove user, if TCP connection broke
+		defer func() {
+			log.Println("[Err] client disconnected, hence removing user ", userName)
+			chatManager.RemoveUser(userName)
+		}()
+		//scan and send Message
 		for scanner.Scan() {
+			fmt.Println("inside scan")
 			input := scanner.Text()
 			if user, err := chatManager.GetUser(userName); err == nil {
 				chatManager.SendMessageToStream(chatManager.HandleInput(input, userName, user.GetCurrentUserGroup()))
@@ -108,7 +112,9 @@ func HandleUserConnection(chatManager chatmanager.IChatManager, conn net.Conn) {
 
 	if user, err := chatManager.GetUser(userName); err == nil {
 		for message := range user.GetOutChannel() {
-			io.WriteString(conn, message.String())
+			if _, err := io.WriteString(conn, message.String()); err != nil {
+				log.Println("[Err] error in writing to the connection")
+			}
 		}
 	}
 }

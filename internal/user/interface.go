@@ -8,4 +8,5 @@ type IUser interface {
 	GetOutChannel() chan message.IMessage
 	GetCurrentUserGroup() string
 	SetCurrentUserGroup(groupName string)
+	GetAllUserGroups() map[string]struct{}
 }

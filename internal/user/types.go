@@ -9,5 +9,6 @@ type (
 		name         string
 		out          chan message.IMessage
 		currentGroup string
+		groups       map[string]struct{}
 	}
 )

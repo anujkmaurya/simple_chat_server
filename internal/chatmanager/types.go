@@ -2,6 +2,7 @@ package chatmanager
 
 import (
 	"errors"
+	"log"
 	"simple_chat_server/internal/group"
 	"simple_chat_server/internal/message"
 	"simple_chat_server/internal/user"
@@ -36,7 +37,19 @@ func (cm *ChatManager) AddGroup(group group.IGroup) {
 }
 
 func (cm *ChatManager) RemoveUser(userName string) {
-	if _, ok := cm.users[userName]; ok {
+	if user, ok := cm.users[userName]; ok {
+
+		//find all groups of users, disconnect from all groups
+		for groupName := range user.GetAllUserGroups() {
+
+			//check if group present
+			if group, err := cm.GetGroup(groupName); err == nil {
+
+				group.RemoveUserFromGroup(userName)
+			}
+		}
+
+		//delete from usersmap
 		delete(cm.users, userName)
 	}
 	return
@@ -47,7 +60,21 @@ func (cm *ChatManager) SendMessageToStream(message message.IMessage) {
 }
 
 func (cm *ChatManager) AddUser(user user.IUser) {
-	if _, ok := cm.users[user.GetUserName()]; !ok {
-		cm.users[user.GetUserName()] = user
+	userName := user.GetUserName()
+	if _, ok := cm.users[userName]; !ok {
+		cm.users[userName] = user
+
+		//add user to group
+		//find all groups of users, disconnect from all groups
+		for groupName := range user.GetAllUserGroups() {
+
+			//check if group present
+			if group, err := cm.GetGroup(groupName); err == nil {
+
+				if !group.AddUserToGroup(userName) {
+					log.Printf("[Err] Failed to add user: %s to group :%s\n", userName, groupName)
+				}
+			}
+		}
 	}
 }

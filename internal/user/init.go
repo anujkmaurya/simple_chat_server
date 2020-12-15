@@ -7,10 +7,12 @@ import (
 
 func New(name string) IUser {
 
-	return &User{
+	user := &User{
 		name:         name,
 		out:          make(chan message.IMessage, model.MaxUserMessageQueueLen),
 		currentGroup: "COMMON",
+		groups:       make(map[string]struct{}, 0),
 	}
-
+	user.groups[user.currentGroup] = struct{}{}
+	return user
 }

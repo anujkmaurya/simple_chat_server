@@ -8,6 +8,6 @@ type IGroup interface {
 	AddUserToGroup(userName string) bool
 	RemoveUserFromGroup(userName string)
 	CreateSystemMessage(text string) message.IMessage
-	GetSubscribedUsers() map[string]string
+	GetSubscribedUsers() map[string]struct{}
 	GetSubscribedUsersCount() int
 }
