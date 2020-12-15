@@ -3,6 +3,7 @@ package command
 //Command : specifies allowed user commands
 type Command int
 
+//tyoes of commands
 const (
 	NormalMessage Command = iota + 1
 	HelpCommand

@@ -13,7 +13,7 @@ type IChatManager interface {
 	AddUser(user user.IUser)
 	RemoveUser(userName string)
 	Run()
-	JoinGroup(userName string, channelName string)
+	JoinGroup(userName string, groupName string)
 	SendMessageToStream(message message.IMessage)
-	HandleInput(input string, userName string, channelName string) (message.IMessage, error)
+	HandleInput(input string, userName string, groupName string) (message.IMessage, error)
 }

@@ -2,6 +2,7 @@ package group
 
 import "simple_chat_server/internal/message"
 
+//IGroup : defines all the exported methods of Group Object
 type IGroup interface {
 	SetGroupName(groupName string)
 	GetGroupName() string

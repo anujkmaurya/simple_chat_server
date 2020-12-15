@@ -122,12 +122,20 @@ func HandleUserConnection(chatManager chatmanager.IChatManager, conn net.Conn) {
 
 		//scan for user message continuously and send Message to chatmanager
 		for scanner.Scan() {
+			//check for scanner error
+			if scanner.Err() != nil {
+				fmt.Println("sanner error")
+				return
+			}
+
 			input := scanner.Text()
 			if user, err := chatManager.GetUser(userName); err == nil {
-				if msg, err := chatManager.HandleInput(input, userName, user.GetCurrentUserGroup()); err != nil {
+				if msg, err := chatManager.HandleInput(input, userName, user.GetCurrentUserGroup()); err == nil {
+
 					//send message to message stream
 					chatManager.SendMessageToStream(msg)
 				} else {
+
 					//ask this user to renter the command or new text
 					if _, err := io.WriteString(conn, iGroup.CreateSystemMessage("The command is incorrect,  Type --help for a list of commands.").SetReceiverName(userName).String()); err != nil {
 						log.Println("[Err] error in writing to the connection")

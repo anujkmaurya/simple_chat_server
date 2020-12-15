@@ -41,16 +41,14 @@ func (chatManager *ChatManager) JoinGroup(userName string, groupName string) {
 		}
 	}
 
-	//add user
-	// chatManager.groupList[groupName].AddUserToGroup(userName)
+	//add user to the grouplist
+	chatManager.groupList[groupName].AddUserToGroup(userName)
 
 	//make given group as current group, switch user to this group
 	chatManager.users[userName].SetCurrentUserGroup(groupName)
 
 	//broadcast new user joining message to all users in this group
 	chatManager.SendMessageToStream(chatManager.groupList[groupName].CreateSystemMessage(fmt.Sprintf("%s has joint the channel. Say hello.", userName)))
-
-	// chatManager.msgStream <- chatManager.groupList[groupName].CreateSystemMessage(fmt.Sprintf("%s has joint the channel. Say hello.", userName))
 }
 
 //LeaveGroup : UnSubscribe user from a given group
@@ -108,11 +106,16 @@ func (chatManager *ChatManager) HandleInput(input string, userName string, group
 				userName), nil
 
 		case command.PersonalCommand:
-			return message.CreateMessage(
-				userName,
-				model.CommonGroup,
-				strings.Join(commandArr[2:], " "),
-				commandArr[1]), nil
+			if _, err := chatManager.GetUser(commandArr[1]); err != nil {
+				return nil, errors.New("receipient user is not present")
+			} else {
+				return message.CreateMessage(
+					userName,
+					model.CommonGroup,
+					strings.Join(commandArr[2:], " "),
+					commandArr[1]), nil
+
+			}
 
 		case command.JoinGroupCommand:
 			chatManager.JoinGroup(userName, commandArr[1])
@@ -145,11 +148,25 @@ func (chatManager *ChatManager) HandleInput(input string, userName string, group
 func (chatManager *ChatManager) Run() {
 
 	for {
+		//for each message through the msgStream channel
 		for message := range chatManager.msgStream {
-			log.Println(message.String())
-			for user := range chatManager.groupList[message.GetChannelName()].GetSubscribedUsers() {
-				if _, ok := chatManager.users[user]; (message.GetReceiverName() == "" || message.GetReceiverName() == user) && ok {
-					chatManager.users[user].SendMessageToUser(message)
+			//print message in log
+			log.Print(message.String())
+
+			//get receiver and sender name
+			receiverName := message.GetReceiverName()
+			senderName := message.GetSenderName()
+
+			//loop for all the users subscribed to the group
+			for user := range chatManager.groupList[message.GetGroupName()].GetSubscribedUsers() {
+				//check for avoiding sending his message to himself
+
+				if user != senderName {
+					//check if the user exists in the chat mangager users map,
+					//check if the message is general, or for this user
+					if recipient, ok := chatManager.users[user]; (receiverName == "" || receiverName == user) && ok {
+						recipient.SendMessageToUser(message)
+					}
 				}
 			}
 		}

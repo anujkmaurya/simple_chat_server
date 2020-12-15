@@ -5,6 +5,7 @@ import (
 	"simple_chat_server/internal/model"
 )
 
+//New : Create new User ; assign common group to the user
 func New(name string) IUser {
 
 	user := &User{

@@ -2,6 +2,7 @@ package user
 
 import "simple_chat_server/internal/message"
 
+//IUser :defines all the exported methods of User Object
 type IUser interface {
 	GetUserName() string
 	SendMessageToUser(message message.IMessage)

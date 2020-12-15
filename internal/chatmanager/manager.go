@@ -67,10 +67,10 @@ func (cm *ChatManager) AddUser(user user.IUser) {
 
 		//find all groups of users, add user to all groups he wants to subscribe to
 		for groupName := range user.GetAllUserGroups() {
-
+			
 			//check if group present
 			if group, err := cm.GetGroup(groupName); err == nil {
-
+				
 				//add user to group
 				if !group.AddUserToGroup(userName) {
 					log.Printf("[Err] Failed to add user: %s to group :%s\n", userName, groupName)

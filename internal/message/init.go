@@ -4,14 +4,15 @@ import (
 	"time"
 )
 
-func CreateMessage(sender, channelName, message, receiver string) IMessage {
+//CreateMessagea : Create New Message
+func CreateMessage(sender, groupName, message, receiver string) IMessage {
 
 	return &Message{
-		text:        message,
-		senderName:  sender,
-		channelName: channelName,
-		createdAt:   time.Now(),
-		receiver:    receiver,
+		text:       message,
+		senderName: sender,
+		groupName:  groupName,
+		createdAt:  time.Now(),
+		receiver:   receiver,
 	}
 
 }
