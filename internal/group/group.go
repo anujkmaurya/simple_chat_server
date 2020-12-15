@@ -2,6 +2,7 @@ package group
 
 import (
 	"simple_chat_server/internal/message"
+	"simple_chat_server/internal/model"
 )
 
 func (g *Group) SetGroupName(groupName string) {
@@ -27,7 +28,7 @@ func (g *Group) RemoveUserFromGroup(userName string) {
 }
 
 func (group *Group) CreateSystemMessage(text string) message.IMessage {
-	return message.CreateMessage("System", group.groupName, text, "")
+	return message.CreateMessage(model.System, group.groupName, text, "")
 }
 
 func (g *Group) GetSubscribedUsers() map[string]struct{} {

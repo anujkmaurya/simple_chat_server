@@ -13,4 +13,7 @@ const (
 const (
 	//common group name
 	CommonGroup string = "COMMON"
+
+	//System Message sender
+	System = "SYSTEM"
 )

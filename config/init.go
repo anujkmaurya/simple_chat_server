@@ -13,7 +13,7 @@ func Init(environment string) *Config {
 
 	ok := cfg.ReadConfig(model.ConfigPath[environment])
 	if !ok {
-		log.Fatal("Failed to read config file, exiting..")
+		log.Fatal("[Err] Failed to read config file, exiting..")
 	}
 	return cfg
 }

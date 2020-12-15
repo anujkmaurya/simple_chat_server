@@ -1,112 +1,79 @@
 package chatmanager
 
+//this file contains all teh basic getter setters or Chatmanager struct
 import (
-	"fmt"
+	"errors"
 	"log"
 	"simple_chat_server/internal/group"
 	"simple_chat_server/internal/message"
-	"simple_chat_server/internal/model"
-	"strings"
+	"simple_chat_server/internal/user"
 )
 
-func (chatManager *ChatManager) makeChannel(channelName string) {
-	if _, ok := chatManager.groupList[channelName]; !ok {
-		chatManager.groupList[channelName] = group.New(channelName)
+//GetUser :find if a user is present with given userName
+func (cm *ChatManager) GetUser(userName string) (user.IUser, error) {
+	if val, ok := cm.users[userName]; ok {
+		return val, nil
+	}
+	return nil, errors.New("user not present")
+}
 
-		chatManager.msgStream <- chatManager.groupList[model.CommonGroup].CreateSystemMessage(fmt.Sprintf("New Channel: %s is ready for use.", channelName))
-	} else {
-		chatManager.msgStream <- chatManager.groupList[model.CommonGroup].CreateSystemMessage(fmt.Sprintf("Channel: %s already exists.", channelName))
+//GetGroup :find if a group is present with given groupName
+func (cm *ChatManager) GetGroup(groupName string) (group.IGroup, error) {
+	if val, ok := cm.groupList[groupName]; ok {
+		return val, nil
+	}
+	return nil, errors.New("group not present")
+}
+
+//AddGroup :Add the new group to the Group Map
+func (cm *ChatManager) AddGroup(group group.IGroup) {
+	// check if group is already present
+	if _, ok := cm.groupList[group.GetGroupName()]; !ok {
+		//if not, add it to group map
+		cm.groupList[group.GetGroupName()] = group
 	}
 }
 
-func (chatManager *ChatManager) JoinGroup(userName string, channelName string) {
-	if _, ok := chatManager.groupList[channelName]; !ok {
-		chatManager.makeChannel(channelName)
-	}
+//RemoveUser : removed users from users map, unsubscribes user from all the groups user was subscribed to
+func (cm *ChatManager) RemoveUser(userName string) {
+	if user, ok := cm.users[userName]; ok {
 
-	if !chatManager.groupList[channelName].AddUserToGroup(userName) {
-		//log error since username is dublicate, return error
-		return
-	}
+		//find all groups of users, disconnect from all groups
+		for groupName := range user.GetAllUserGroups() {
 
-	chatManager.users[userName].SetCurrentUserGroup(channelName)
-	chatManager.msgStream <- chatManager.groupList[channelName].CreateSystemMessage(fmt.Sprintf("%s has joint the channel. Say hello.", userName))
-}
+			//check if group present
+			if group, err := cm.GetGroup(groupName); err == nil {
 
-func (chatManager *ChatManager) LeaveGroup(userName string, channelName string) {
-	if channelName != model.CommonGroup {
-		chatManager.groupList[channelName].RemoveUserFromGroup(userName)
-
-		if chatManager.users[userName].GetCurrentUserGroup() == channelName {
-			user := chatManager.users[userName]
-			user.SetCurrentUserGroup(model.CommonGroup)
+				group.RemoveUserFromGroup(userName)
+			}
 		}
 
-		if chatManager.groupList[channelName].GetSubscribedUsersCount() == 0 {
-			//remove the group from list
-			delete(chatManager.groupList, channelName)
-		}
-
+		//delete from usersmap
+		delete(cm.users, userName)
 	}
-
+	return
 }
 
-func (chatManager *ChatManager) HandleInput(input string, userName string, channelName string) (message.IMessage, error) {
-	commandArr := strings.Fields(strings.TrimSpace(input))
-
-	if len(commandArr) == 0 {
-		return message.CreateMessage(
-			"System",
-			model.CommonGroup,
-			"Please enter a valid string, It's empty",
-			userName), nil
-	}
-
-	switch {
-	case commandArr[0] == "--help":
-		return message.CreateMessage(
-			"System",
-			model.CommonGroup,
-			"You can join a group using --joingroup <group name>, leave a group --leavegroup <group name> or personal to any user --personal <username>",
-			userName), nil
-
-	case commandArr[0] == "--personal":
-		return message.CreateMessage(
-			userName,
-			model.CommonGroup,
-			strings.Join(commandArr[2:], " "),
-			commandArr[1]), nil
-
-	case commandArr[0] == "--joingroup":
-		chatManager.JoinGroup(userName, commandArr[1])
-		return message.CreateMessage(
-			"SYSTEM",
-			model.CommonGroup,
-			"You successfully joined a group "+commandArr[1],
-			userName), nil
-
-	case commandArr[0] == "--leavegroup":
-		chatManager.LeaveGroup(userName, commandArr[1])
-		return message.CreateMessage(
-			"SYSTEM",
-			model.CommonGroup,
-			"You successfully left the group "+commandArr[1],
-			userName), nil
-
-	default:
-		return message.CreateMessage(userName, channelName, input, ""), nil
-	}
+//SendMessageToStream : send message to Message Stream
+func (cm *ChatManager) SendMessageToStream(message message.IMessage) {
+	cm.msgStream <- message
 }
 
-//Run : reads continuously from the message streams and relay it to the users
-func (chatManager *ChatManager) Run() {
+//AddUser : Add user to the group
+func (cm *ChatManager) AddUser(user user.IUser) {
+	userName := user.GetUserName()
+	if _, ok := cm.users[userName]; !ok {
+		cm.users[userName] = user
 
-	for {
-		for message := range chatManager.msgStream {
-			log.Println(message.String())
-			for user := range chatManager.groupList[message.GetChannelName()].GetSubscribedUsers() {
-				if _, ok := chatManager.users[user]; (message.GetReceiverName() == "" || message.GetReceiverName() == user) && ok {
-					chatManager.users[user].SendMessageToUser(message)
+		//find all groups of users, add user to all groups he wants to subscribe to
+		for groupName := range user.GetAllUserGroups() {
+
+			//check if group present
+			if group, err := cm.GetGroup(groupName); err == nil {
+
+				//add user to group
+				if !group.AddUserToGroup(userName) {
+					log.Printf("[Err] Failed to add user: %s to group :%s\n", userName, groupName)
 				}
 			}
 		}

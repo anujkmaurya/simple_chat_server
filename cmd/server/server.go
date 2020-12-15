@@ -104,7 +104,7 @@ func HandleUserConnection(chatManager chatmanager.IChatManager, conn net.Conn) {
 
 		} else {
 			//handles the case if client disconnects while/before adding username
-			log.Println("[Err] A new disconnected while adding username")
+			log.Println("[Err] A new client disconnected while adding username")
 			return
 		}
 	}

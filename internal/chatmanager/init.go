@@ -6,6 +6,7 @@ import (
 	"simple_chat_server/internal/user"
 )
 
+//New: Create new Chatmanager, it's unique through out program
 func New() IChatManager {
 
 	return &ChatManager{
