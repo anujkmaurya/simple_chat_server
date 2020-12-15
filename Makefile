@@ -17,3 +17,7 @@ test-unit:
 
 test: test-unit
 .PHONY: test
+
+test-short:
+	go test --race --short $(PKGS)
+.PHONY: test-short
