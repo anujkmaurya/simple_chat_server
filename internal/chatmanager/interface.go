@@ -15,5 +15,5 @@ type IChatManager interface {
 	Run()
 	JoinGroup(userName string, channelName string)
 	SendMessageToStream(message message.IMessage)
-	HandleInput(input string, userName string, channelName string) message.IMessage
+	HandleInput(input string, userName string, channelName string) (message.IMessage, error)
 }

@@ -5,6 +5,7 @@ import (
 	"log"
 	"simple_chat_server/internal/group"
 	"simple_chat_server/internal/message"
+	"simple_chat_server/internal/model"
 	"strings"
 )
 
@@ -12,9 +13,9 @@ func (chatManager *ChatManager) makeChannel(channelName string) {
 	if _, ok := chatManager.groupList[channelName]; !ok {
 		chatManager.groupList[channelName] = group.New(channelName)
 
-		chatManager.msgStream <- chatManager.groupList["COMMON"].CreateSystemMessage(fmt.Sprintf("New Channel: %s is ready for use.", channelName))
+		chatManager.msgStream <- chatManager.groupList[model.CommonGroup].CreateSystemMessage(fmt.Sprintf("New Channel: %s is ready for use.", channelName))
 	} else {
-		chatManager.msgStream <- chatManager.groupList["COMMON"].CreateSystemMessage(fmt.Sprintf("Channel: %s already exists.", channelName))
+		chatManager.msgStream <- chatManager.groupList[model.CommonGroup].CreateSystemMessage(fmt.Sprintf("Channel: %s already exists.", channelName))
 	}
 }
 
@@ -33,12 +34,12 @@ func (chatManager *ChatManager) JoinGroup(userName string, channelName string) {
 }
 
 func (chatManager *ChatManager) LeaveGroup(userName string, channelName string) {
-	if channelName != "COMMON" {
+	if channelName != model.CommonGroup {
 		chatManager.groupList[channelName].RemoveUserFromGroup(userName)
 
 		if chatManager.users[userName].GetCurrentUserGroup() == channelName {
 			user := chatManager.users[userName]
-			user.SetCurrentUserGroup("COMMON")
+			user.SetCurrentUserGroup(model.CommonGroup)
 		}
 
 		if chatManager.groupList[channelName].GetSubscribedUsersCount() == 0 {
@@ -50,53 +51,54 @@ func (chatManager *ChatManager) LeaveGroup(userName string, channelName string) 
 
 }
 
-func (chatManager *ChatManager) HandleInput(input string, userName string, channelName string) message.IMessage {
+func (chatManager *ChatManager) HandleInput(input string, userName string, channelName string) (message.IMessage, error) {
 	commandArr := strings.Fields(strings.TrimSpace(input))
 
 	if len(commandArr) == 0 {
 		return message.CreateMessage(
 			"System",
-			"COMMON",
+			model.CommonGroup,
 			"Please enter a valid string, It's empty",
-			userName)
+			userName), nil
 	}
 
 	switch {
 	case commandArr[0] == "--help":
 		return message.CreateMessage(
 			"System",
-			"COMMON",
+			model.CommonGroup,
 			"You can join a group using --joingroup <group name>, leave a group --leavegroup <group name> or personal to any user --personal <username>",
-			userName)
+			userName), nil
 
 	case commandArr[0] == "--personal":
 		return message.CreateMessage(
 			userName,
-			"COMMON",
+			model.CommonGroup,
 			strings.Join(commandArr[2:], " "),
-			commandArr[1])
+			commandArr[1]), nil
 
 	case commandArr[0] == "--joingroup":
 		chatManager.JoinGroup(userName, commandArr[1])
 		return message.CreateMessage(
 			"SYSTEM",
-			"COMMON",
+			model.CommonGroup,
 			"You successfully joined a group "+commandArr[1],
-			userName)
+			userName), nil
 
 	case commandArr[0] == "--leavegroup":
 		chatManager.LeaveGroup(userName, commandArr[1])
 		return message.CreateMessage(
 			"SYSTEM",
-			"COMMON",
+			model.CommonGroup,
 			"You successfully left the group "+commandArr[1],
-			userName)
+			userName), nil
 
 	default:
-		return message.CreateMessage(userName, channelName, input, "")
+		return message.CreateMessage(userName, channelName, input, ""), nil
 	}
 }
 
+//Run : reads continuously from the message streams and relay it to the users
 func (chatManager *ChatManager) Run() {
 
 	for {

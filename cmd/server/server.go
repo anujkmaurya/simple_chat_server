@@ -17,48 +17,55 @@ import (
 )
 
 func main() {
+	log.Println("starting server")
 
-	startApp()
-}
-
-func startApp() {
-	fmt.Println("starting server")
-
+	//read Environment variable :APPENV
 	environment := os.Getenv("APPENV")
 	if environment == "" {
 		environment = model.EnvDevelopemnt
 	}
 
+	//init configurations, read from config file
 	cfg := config.Init(environment)
 
+	//init logger instance
 	err := logger.InitLogger(cfg.Log.Path)
 	if err != nil {
 		log.Fatalf("Failed to initialise logger %+v\n", err)
 	}
 
+	//server port
 	port := cfg.Server.Port
 
+	//server starts listening the configured port
 	server, err := net.Listen("tcp", ":"+port)
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Fatalln("[Err] Server Failed to Listen, err:", err.Error())
 	}
 	defer server.Close()
 
+	//init chatMangager
 	chatManager := chatmanager.New()
 
-	chatManager.AddGroup(group.New("COMMON"))
+	//add a default group "Common"
+	chatManager.AddGroup(group.New(model.CommonGroup))
 
+	//spawn Run function in a goroutine
 	go chatManager.Run()
 
+	//loop to accept new connections
 	for {
 		conn, err := server.Accept()
 		if err != nil {
-			log.Fatalln(err.Error())
+			log.Fatalln("[Err] Server Failed to Accept new connection, err:", err.Error())
 		}
+
+		//handle a succesfull user connection in a goroutine
 		go HandleUserConnection(chatManager, conn)
 	}
 }
 
+//HandleUserConnection : handles user connection,
 func HandleUserConnection(chatManager chatmanager.IChatManager, conn net.Conn) {
 	defer conn.Close()
 
@@ -66,55 +73,78 @@ func HandleUserConnection(chatManager chatmanager.IChatManager, conn net.Conn) {
 	var userName string
 	var iGroup group.IGroup
 	var err error
-	if iGroup, err = chatManager.GetGroup("COMMON"); err != nil {
-		log.Printf("error in getting groupName, err:%+v\n", err)
+	if iGroup, err = chatManager.GetGroup(model.CommonGroup); err != nil {
+		log.Printf("[Err] error in getting groupName: %s, err:%+v\n", model.CommonGroup, err)
 		return
 	}
 
-	io.WriteString(conn, iGroup.CreateSystemMessage("Welcome to Chat Groups, please choose an username: ").String())
-
+	//Welcome message
+	if _, err := io.WriteString(conn, iGroup.CreateSystemMessage("Welcome to Chat Groups, please choose an username: ").String()); err != nil {
+		log.Println("[Err] error in writing to the connection")
+	}
+	//read Conn for userName
 	for {
 		if scanner.Scan() {
-
+			//get username
 			userName = scanner.Text()
 			if _, err := chatManager.GetUser(userName); err != nil {
-
+				//create new user and add to chatmanager
 				chatManager.AddUser(user.New(userName))
 
-				io.WriteString(conn, iGroup.CreateSystemMessage("Thanks for joining us. Type /help for a list of commands.").String())
+				if _, err := io.WriteString(conn, iGroup.CreateSystemMessage(fmt.Sprintf("Thanks %s! for joining us. Type --help for a list of commands.", userName)).String()); err != nil {
+					log.Println("[Err] error in writing to the connection")
+				}
 
 				break
 			}
-			io.WriteString(conn, iGroup.CreateSystemMessage("Sorry that user name is taken Please choose another one:").String())
+			//ask user to choose another name in case
+			if _, err := io.WriteString(conn, iGroup.CreateSystemMessage(fmt.Sprintf("Sorry the user name: %s is taken. Please choose another one", userName)).String()); err != nil {
+				log.Println("[Err] error in writing to the connection")
+			}
+
 		} else {
-			log.Println("[Err] client disconnected")
+			//handles the case if client disconnects while/before adding username
+			log.Println("[Err] A new disconnected while adding username")
 			return
 		}
 	}
 
-	chatManager.JoinGroup(userName, "COMMON")
+	//by default, user joins the Common group
+	chatManager.JoinGroup(userName, model.CommonGroup)
 
+	//scan all inputs from this user in a go routine
 	go func() {
-		//remove user, if TCP connection broke
+		//remove user, if TCP connection breaks or client closes the connection
 		defer func() {
 			log.Println("[Err] client disconnected, hence removing user ", userName)
 			chatManager.RemoveUser(userName)
 		}()
-		//scan and send Message
+
+		//scan for user message continuously and send Message to chatmanager
 		for scanner.Scan() {
-			fmt.Println("inside scan")
 			input := scanner.Text()
 			if user, err := chatManager.GetUser(userName); err == nil {
-				chatManager.SendMessageToStream(chatManager.HandleInput(input, userName, user.GetCurrentUserGroup()))
+				if msg, err := chatManager.HandleInput(input, userName, user.GetCurrentUserGroup()); err != nil {
+					//send message to message stream
+					chatManager.SendMessageToStream(msg)
+				} else {
+					//ask this user to renter the command or new text
+					if _, err := io.WriteString(conn, iGroup.CreateSystemMessage("The command is incorrect,  Type --help for a list of commands.").SetReceiverName(userName).String()); err != nil {
+						log.Println("[Err] error in writing to the connection")
+					}
+				}
 			}
 		}
 	}()
 
+	//for all the messages, to be transmitted to this user
 	if user, err := chatManager.GetUser(userName); err == nil {
 		for message := range user.GetOutChannel() {
 			if _, err := io.WriteString(conn, message.String()); err != nil {
 				log.Println("[Err] error in writing to the connection")
 			}
 		}
+	} else {
+		log.Printf("[Err] user: %s is not present inn the system ", userName)
 	}
 }

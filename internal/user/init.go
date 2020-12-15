@@ -10,7 +10,7 @@ func New(name string) IUser {
 	user := &User{
 		name:         name,
 		out:          make(chan message.IMessage, model.MaxUserMessageQueueLen),
-		currentGroup: "COMMON",
+		currentGroup: model.CommonGroup,
 		groups:       make(map[string]struct{}, 0),
 	}
 	user.groups[user.currentGroup] = struct{}{}

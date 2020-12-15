@@ -9,15 +9,15 @@ import (
 )
 
 // ReadConfig is file handler for reading configuration files into variable
-// Param: -  filepath string
+// Param: -  filePath string
 // Return: - boolean
-func (cfg *Config) ReadConfig(fileName string) bool {
+func (cfg *Config) ReadConfig(filePath string) bool {
 
 	var configString []string
 
-	config, err := ioutil.ReadFile(fileName)
+	config, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		log.Printf(" function ReadConfig %+v", err)
+		log.Printf("[Err] in reading Config File: %+v", err)
 		return false
 	}
 
@@ -25,7 +25,7 @@ func (cfg *Config) ReadConfig(fileName string) bool {
 
 	err = gcfg.ReadStringInto(cfg, strings.Join(configString, "\n\n"))
 	if err != nil {
-		log.Printf("function ReadConfig", err)
+		log.Printf("[Err] in reading Config: %+v", err)
 		return false
 	}
 
