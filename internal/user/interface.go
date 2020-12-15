@@ -10,4 +10,6 @@ type IUser interface {
 	GetCurrentUserGroup() string
 	SetCurrentUserGroup(groupName string)
 	GetAllUserGroups() map[string]struct{}
+	GetIgnoredUserName() string
+	SetIgnoredUserName(userName string)
 }

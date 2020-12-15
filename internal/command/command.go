@@ -24,7 +24,7 @@ func ParseAndSanitiseCommand(commandList []string) bool {
 		if cmdListLen > 2 {
 			return true
 		}
-	case JoinGroupCommand, LeaveGroupCommand:
+	case JoinGroupCommand, LeaveGroupCommand, IgnoreUserCommand, UnIgnoreUserCommand:
 		if cmdListLen == 2 {
 			return true
 		}

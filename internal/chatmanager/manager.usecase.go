@@ -102,7 +102,7 @@ func (chatManager *ChatManager) HandleInput(input string, userName string, group
 			return message.CreateMessage(
 				model.System,
 				model.CommonGroup,
-				"You can join a group using --joingroup <group name>, leave a group --leavegroup <group name> or personal to any user --personal <username>",
+				"You can join a group using --joingroup <group name>, leave a group --leavegroup <group name>, ignore an user --ignoreuser <user name>, unignore an user --unignoreuser <user name> or personal to any user --personal <username>",
 				userName), nil
 
 		case command.PersonalCommand:
@@ -137,6 +137,24 @@ func (chatManager *ChatManager) HandleInput(input string, userName string, group
 
 		case command.NormalMessage:
 			return message.CreateMessage(userName, groupName, input, ""), nil
+
+		case command.IgnoreUserCommand:
+
+			chatManager.ignoreUser(userName, commandArr[1])
+			return message.CreateMessage(
+				model.System,
+				model.CommonGroup,
+				"You have successfully ignored the user "+commandArr[1],
+				userName), nil
+
+		case command.UnIgnoreUserCommand:
+
+			chatManager.unIgnoreUser(userName, commandArr[1])
+			return message.CreateMessage(
+				model.System,
+				model.CommonGroup,
+				"You have successfully unignored the user "+commandArr[1],
+				userName), nil
 		}
 	}
 
@@ -165,10 +183,35 @@ func (chatManager *ChatManager) Run() {
 					//check if the user exists in the chat mangager users map,
 					//check if the message is general, or for this user
 					if recipient, ok := chatManager.users[user]; (receiverName == "" || receiverName == user) && ok {
-						recipient.SendMessageToUser(message)
+
+						//check for blocked/ignored user
+						fmt.Println(recipient.GetIgnoredUserName())
+						if recipient.GetIgnoredUserName() != senderName {
+							recipient.SendMessageToUser(message)
+						}
 					}
 				}
 			}
+		}
+	}
+}
+
+//IgnoreUser : allows a user to stop receiving message from a sender other than system
+func (chatManager *ChatManager) ignoreUser(userName string, ignoredUserName string) {
+
+	if user, ok := chatManager.users[userName]; ok {
+		if _, isPresent := chatManager.users[ignoredUserName]; isPresent {
+			user.SetIgnoredUserName(ignoredUserName)
+		}
+	}
+}
+
+//unIgnoreUser : allow user from to receive message
+func (chatManager *ChatManager) unIgnoreUser(userName string, ignoredUserName string) {
+
+	if user, ok := chatManager.users[userName]; ok {
+		if user.GetIgnoredUserName() == ignoredUserName {
+			user.SetIgnoredUserName("")
 		}
 	}
 }

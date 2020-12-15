@@ -11,6 +11,7 @@ type (
 		name         string
 		out          chan message.IMessage
 		currentGroup string
+		ignoredUser  string
 		groups       map[string]struct{}
 	}
 )

@@ -10,12 +10,16 @@ const (
 	PersonalCommand
 	JoinGroupCommand
 	LeaveGroupCommand
+	IgnoreUserCommand
+	UnIgnoreUserCommand
 )
 
 //textToCommandMap converts user command text to defines commands
 var textToCommandMap = map[string]Command{
-	"--help":       HelpCommand,
-	"--personal":   PersonalCommand,
-	"--joingroup":  JoinGroupCommand,
-	"--leavegroup": LeaveGroupCommand,
+	"--help":         HelpCommand,
+	"--personal":     PersonalCommand,
+	"--joingroup":    JoinGroupCommand,
+	"--leavegroup":   LeaveGroupCommand,
+	"--ignoreuser":   IgnoreUserCommand,
+	"--unignoreuser": UnIgnoreUserCommand,
 }

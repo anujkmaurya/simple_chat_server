@@ -1,6 +1,9 @@
 package user
 
-import "simple_chat_server/internal/message"
+import (
+	"simple_chat_server/internal/message"
+	"simple_chat_server/internal/model"
+)
 
 //GetUserName : gives user name
 func (u *User) GetUserName() string {
@@ -33,7 +36,19 @@ func (u *User) SetCurrentUserGroup(groupName string) {
 	}
 }
 
-//GetAllUserGroups : returns a map of all the subscribed groups
+//GetAllUserGroups : returns a map of all the subscribed
 func (u *User) GetAllUserGroups() map[string]struct{} {
 	return u.groups
+}
+
+//GetIgnoredUserName : gives ignored user name
+func (u *User) GetIgnoredUserName() string {
+	return u.ignoredUser
+}
+
+//SetIgnoredUserName : set the ignored user
+func (u *User) SetIgnoredUserName(userName string) {
+	if userName != model.System {
+		u.ignoredUser = userName
+	}
 }
