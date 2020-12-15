@@ -6,6 +6,7 @@ import (
 	"simple_chat_server/internal/user"
 )
 
+//IChatManager : defines all the exported methods of Chat Manager Object
 type IChatManager interface {
 	GetUser(userName string) (user.IUser, error)
 	GetGroup(groupName string) (group.IGroup, error)

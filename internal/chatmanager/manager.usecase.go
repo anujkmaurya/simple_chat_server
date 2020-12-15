@@ -108,14 +108,12 @@ func (chatManager *ChatManager) HandleInput(input string, userName string, group
 		case command.PersonalCommand:
 			if _, err := chatManager.GetUser(commandArr[1]); err != nil {
 				return nil, errors.New("receipient user is not present")
-			} else {
-				return message.CreateMessage(
-					userName,
-					model.CommonGroup,
-					strings.Join(commandArr[2:], " "),
-					commandArr[1]), nil
-
 			}
+			return message.CreateMessage(
+				userName,
+				model.CommonGroup,
+				strings.Join(commandArr[2:], " "),
+				commandArr[1]), nil
 
 		case command.JoinGroupCommand:
 			chatManager.JoinGroup(userName, commandArr[1])

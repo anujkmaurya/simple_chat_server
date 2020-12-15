@@ -7,7 +7,7 @@ import (
 )
 
 type (
-	//ChatManager: stores all the users, groups, common message stream
+	//ChatManager : stores all the users, groups, common message stream
 	ChatManager struct {
 		users     map[string]user.IUser
 		groupList map[string]group.IGroup

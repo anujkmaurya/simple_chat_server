@@ -15,5 +15,5 @@ test-unit:
 	go test --race --cover -v $(PKGS)
 .PHONY: test-unit
 
-test: lint test-unit
+test: test-unit
 .PHONY: test

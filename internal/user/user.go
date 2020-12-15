@@ -20,7 +20,7 @@ func (u *User) GetOutChannel() chan message.IMessage {
 	return u.out
 }
 
-//GetCurrentUserGroup: get the user's current group name
+//GetCurrentUserGroup : get the user's current group name
 func (u *User) GetCurrentUserGroup() string {
 	return u.currentGroup
 }

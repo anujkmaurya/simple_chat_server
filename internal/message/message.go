@@ -25,7 +25,7 @@ func (message *Message) GetGroupName() string {
 	return message.groupName
 }
 
-//GetCreatedAt: get created at time
+//GetCreatedAt : get created at time
 func (message *Message) GetCreatedAt() time.Time {
 	return message.createdAt
 }

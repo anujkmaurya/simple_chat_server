@@ -10,18 +10,18 @@ type (
 		Client ClientConfig
 	}
 
-	//ServerConfig: all server configs
+	//ServerConfig : all server configs
 	ServerConfig struct {
 		Host string
 		Port string
 	}
 
-	//ClientConfig: all client configs
+	//ClientConfig : all client configs
 	ClientConfig struct {
 		TimeOut time.Duration
 	}
 
-	//LogConfig: contains logger specific configs
+	//LogConfig : contains logger specific configs
 	LogConfig struct {
 		Path string
 	}

@@ -5,10 +5,12 @@ import (
 	"simple_chat_server/internal/model"
 )
 
+//SetGroupName set group name
 func (g *Group) SetGroupName(groupName string) {
 	g.groupName = groupName
 }
 
+//GetGroupName get group name
 func (g *Group) GetGroupName() string {
 	return g.groupName
 }
@@ -30,8 +32,8 @@ func (g *Group) RemoveUserFromGroup(userName string) {
 }
 
 //CreateSystemMessage : create a system generated message to be sent to this group
-func (group *Group) CreateSystemMessage(text string) message.IMessage {
-	return message.CreateMessage(model.System, group.groupName, text, "")
+func (g *Group) CreateSystemMessage(text string) message.IMessage {
+	return message.CreateMessage(model.System, g.groupName, text, "")
 }
 
 //GetSubscribedUsers : return subscribed user map
@@ -39,7 +41,7 @@ func (g *Group) GetSubscribedUsers() map[string]struct{} {
 	return g.users
 }
 
-//GetSubscribedUsersCount: returns counts of user subscribed to the group
+//GetSubscribedUsersCount : returns counts of user subscribed to the group
 func (g *Group) GetSubscribedUsersCount() int {
 	return len(g.users)
 }
