@@ -48,7 +48,7 @@ func (chatManager *ChatManager) JoinGroup(userName string, groupName string) {
 	chatManager.users[userName].SetCurrentUserGroup(groupName)
 
 	//broadcast new user joining message to all users in this group
-	chatManager.SendMessageToStream(chatManager.groupList[groupName].CreateSystemMessage(fmt.Sprintf("%s has joint the channel. Say hello.", userName)))
+	chatManager.SendMessageToStream(chatManager.groupList[groupName].CreateSystemMessage(fmt.Sprintf("%s has joined the channel. Say hello.", userName)))
 }
 
 //LeaveGroup : UnSubscribe user from a given group

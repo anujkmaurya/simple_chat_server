@@ -116,7 +116,7 @@ func HandleUserConnection(chatManager chatmanager.IChatManager, conn net.Conn) {
 	go func() {
 		//remove user, if TCP connection breaks or client closes the connection
 		defer func() {
-			log.Println("[Err] client disconnected, hence removing user ", userName)
+			log.Println("[Err] client disconnected, hence removing user: ", userName)
 			chatManager.RemoveUser(userName)
 		}()
 
