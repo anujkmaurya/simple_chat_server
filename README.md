@@ -17,6 +17,7 @@ A simpe chat application purely over TCP
 10. etc/simple-chat-server: contains configuration script for each environment
 
 ### File Tree
+```
 .
 ├── Makefile
 ├── README.md
@@ -69,6 +70,7 @@ A simpe chat application purely over TCP
         ├── types.go
         ├── user.go
         └── user_test.go
+```
 
 ### Important Points 
 
