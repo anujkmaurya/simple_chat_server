@@ -1,0 +1,23 @@
+2020/12/16 14:58:43 {Time:2020-12-16 14:58:43, Channel:COMMON, Sender:SYSTEM, Receiver:All, Message:anuj has joined the channel. Say hello.}
+2020/12/16 14:58:56 {Time:2020-12-16 14:58:56, Channel:COMMON, Sender:SYSTEM, Receiver:All, Message:vivek has joined the channel. Say hello.}
+2020/12/16 14:58:59 {Time:2020-12-16 14:58:59, Channel:COMMON, Sender:vivek, Receiver:All, Message:hi anuj}
+2020/12/16 14:59:05 {Time:2020-12-16 14:59:05, Channel:COMMON, Sender:anuj, Receiver:All, Message:hi vivek}
+2020/12/16 14:59:18 {Time:2020-12-16 14:59:18, Channel:COMMON, Sender:SYSTEM, Receiver:All, Message:pooja has joined the channel. Say hello.}
+2020/12/16 14:59:23 {Time:2020-12-16 14:59:23, Channel:COMMON, Sender:pooja, Receiver:All, Message:hi all}
+2020/12/16 14:59:33 {Time:2020-12-16 14:59:33, Channel:COMMON, Sender:SYSTEM, Receiver:anuj, Message:You can join a group using --joingroup <group name>, leave a group --leavegroup <group name>, ignore an user --ignoreuser <user name>, unignore an user --unignoreuser <user name> or personal to any user --personal <username>}
+2020/12/16 14:59:57 {Time:2020-12-16 14:59:57, Channel:COMMON, Sender:SYSTEM, Receiver:All, Message:New Group: goa is ready for use.}
+2020/12/16 14:59:57 {Time:2020-12-16 14:59:57, Channel:goa, Sender:SYSTEM, Receiver:All, Message:anuj has joined the channel. Say hello.}
+2020/12/16 14:59:57 {Time:2020-12-16 14:59:57, Channel:COMMON, Sender:SYSTEM, Receiver:anuj, Message:You successfully joined a group goa}
+2020/12/16 15:00:10 {Time:2020-12-16 15:00:10, Channel:goa, Sender:anuj, Receiver:All, Message:hey}
+2020/12/16 15:00:19 {Time:2020-12-16 15:00:19, Channel:COMMON, Sender:SYSTEM, Receiver:vivek, Message:You can join a group using --joingroup <group name>, leave a group --leavegroup <group name>, ignore an user --ignoreuser <user name>, unignore an user --unignoreuser <user name> or personal to any user --personal <username>}
+2020/12/16 15:00:29 {Time:2020-12-16 15:00:29, Channel:COMMON, Sender:vivek, Receiver:pooja, Message:let's join goa}
+2020/12/16 15:00:44 {Time:2020-12-16 15:00:44, Channel:COMMON, Sender:pooja, Receiver:vivek, Message:i'm not going}
+2020/12/16 15:01:01 {Time:2020-12-16 15:01:01, Channel:goa, Sender:SYSTEM, Receiver:All, Message:vivek has joined the channel. Say hello.}
+2020/12/16 15:01:01 {Time:2020-12-16 15:01:01, Channel:COMMON, Sender:SYSTEM, Receiver:vivek, Message:You successfully joined a group goa}
+2020/12/16 15:01:07 {Time:2020-12-16 15:01:07, Channel:goa, Sender:vivek, Receiver:All, Message:hi anuj}
+2020/12/16 15:01:15 {Time:2020-12-16 15:01:15, Channel:goa, Sender:anuj, Receiver:All, Message:hi vivek, let's go to goa}
+2020/12/16 15:01:28 {Time:2020-12-16 15:01:28, Channel:goa, Sender:SYSTEM, Receiver:All, Message:pooja has joined the channel. Say hello.}
+2020/12/16 15:01:28 {Time:2020-12-16 15:01:28, Channel:COMMON, Sender:SYSTEM, Receiver:pooja, Message:You successfully joined a group goa}
+2020/12/16 15:01:56 {Time:2020-12-16 15:01:56, Channel:goa, Sender:pooja, Receiver:All, Message:wait guys i've changed my mind, let go to goa}
+2020/12/16 15:02:06 {Time:2020-12-16 15:02:06, Channel:goa, Sender:vivek, Receiver:All, Message:--leavgroup goa}
+2020/12/16 15:02:14 {Time:2020-12-16 15:02:14, Channel:COMMON, Sender:SYSTEM, Receiver:vivek, Message:You successfully left the group goa}
