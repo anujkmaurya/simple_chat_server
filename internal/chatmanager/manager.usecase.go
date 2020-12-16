@@ -13,20 +13,26 @@ import (
 
 //createNewGroup :creates a new group on receiving create a new group command
 func (chatManager *ChatManager) createNewGroup(userName, groupName string) bool {
-	if _, ok := chatManager.groupList[groupName]; !ok {
-		//create a new group instance
-		chatManager.groupList[groupName] = group.New(groupName)
-		//send new group created message to all members of this group
-		chatManager.SendMessageToStream(chatManager.groupList[model.CommonGroup].CreateSystemMessage(fmt.Sprintf("New Group: %s is ready for use.", groupName)))
+	var commonGroup group.IGroup
 
-		// chatManager.msgStream <- chatManager.groupList[model.CommonGroup].CreateSystemMessage(fmt.Sprintf("New Group: %s is ready for use.", groupName))
+	if commonGrp, ok := chatManager.groupList.getGroup(model.CommonGroup); ok {
+		commonGroup = commonGrp
+	} else {
+		log.Fatalln("[Err] common group is not present, existing application")
+	}
+
+	if _, ok := chatManager.groupList.getGroup(groupName); !ok {
+
+		//create a new group instance
+		chatManager.groupList.setGroup(groupName, group.New(groupName))
+
+		//send new group created message to all members of this group
+		chatManager.SendMessageToStream(commonGroup.CreateSystemMessage(fmt.Sprintf("New Group: %s is ready for use.", groupName)))
 		return true
 	}
+
 	//send response to user to choose a new group name
-	chatManager.SendMessageToStream(chatManager.groupList[model.CommonGroup].CreateSystemMessage(fmt.Sprintf("Group: %s already exists. Please choose another name", groupName)).SetReceiverName(userName))
-
-	// chatManager.msgStream <- chatManager.groupList[model.CommonGroup].CreateSystemMessage(fmt.Sprintf("Group: %s already exists. Please choose another name", groupName))
-
+	chatManager.SendMessageToStream(commonGroup.CreateSystemMessage(fmt.Sprintf("Group: %s already exists. Please choose another name", groupName)).SetReceiverName(userName))
 	return false
 }
 
@@ -35,41 +41,54 @@ func (chatManager *ChatManager) createNewGroup(userName, groupName string) bool 
 func (chatManager *ChatManager) JoinGroup(userName string, groupName string) {
 
 	//if new group, create new group
-	if _, ok := chatManager.groupList[groupName]; !ok {
+	var currGroup group.IGroup
+	if group, ok := chatManager.groupList.getGroup(groupName); !ok {
 		if !chatManager.createNewGroup(userName, groupName) {
 			return
 		}
+		currGroup, _ = chatManager.groupList.getGroup(groupName)
+
+	} else {
+		currGroup = group
 	}
 
 	//add user to the grouplist
-	chatManager.groupList[groupName].AddUserToGroup(userName)
+	currGroup.AddUserToGroup(userName)
 
 	//make given group as current group, switch user to this group
-	chatManager.users[userName].SetCurrentUserGroup(groupName)
+	if user, isPresent := chatManager.users.getUser(userName); isPresent {
+		user.SetCurrentUserGroup(groupName)
+	}
 
 	//broadcast new user joining message to all users in this group
-	chatManager.SendMessageToStream(chatManager.groupList[groupName].CreateSystemMessage(fmt.Sprintf("%s has joined the channel. Say hello.", userName)))
+	chatManager.SendMessageToStream(currGroup.CreateSystemMessage(fmt.Sprintf("%s has joined the channel. Say hello.", userName)))
 }
 
 //LeaveGroup : UnSubscribe user from a given group
 func (chatManager *ChatManager) LeaveGroup(userName string, groupName string) {
+
 	//user can't unsubscribe from common group
 	if groupName != model.CommonGroup {
-		//remove user from group
-		chatManager.groupList[groupName].RemoveUserFromGroup(userName)
 
-		//if user's current group was given group
-		if chatManager.users[userName].GetCurrentUserGroup() == groupName {
+		if group, ok := chatManager.groupList.getGroup(groupName); ok {
+			//remove user from group
+			group.RemoveUserFromGroup(userName)
 
-			user := chatManager.users[userName]
-			//make common channel as the current group
-			user.SetCurrentUserGroup(model.CommonGroup)
-		}
+			//if user's current group was given group
+			if user, isPresent := chatManager.users.getUser(userName); isPresent {
+				if user.GetCurrentUserGroup() == groupName {
 
-		//if group doesn't have any user, delete group
-		if chatManager.groupList[groupName].GetSubscribedUsersCount() == 0 {
-			//remove the group from group map
-			delete(chatManager.groupList, groupName)
+					//make common channel as the current group
+					user.SetCurrentUserGroup(model.CommonGroup)
+				}
+			}
+
+			//if group doesn't have any user, delete group
+			if group.GetSubscribedUsersCount() == 0 {
+
+				//remove the group from group map
+				chatManager.groupList.deleteGroup(groupName)
+			}
 		}
 
 	}
@@ -173,19 +192,22 @@ func (chatManager *ChatManager) Run() {
 			receiverName := message.GetReceiverName()
 			senderName := message.GetSenderName()
 
-			//loop for all the users subscribed to the group
-			for user := range chatManager.groupList[message.GetGroupName()].GetSubscribedUsers() {
-				//check for avoiding sending his message to himself
+			if group, ok := chatManager.groupList.getGroup(message.GetGroupName()); ok {
 
-				if user != senderName {
-					//check if the user exists in the chat mangager users map,
-					//check if the message is general, or for this user
-					if recipient, ok := chatManager.users[user]; (receiverName == "" || receiverName == user) && ok {
+				//loop for all the users subscribed to the group
+				for user := range group.GetSubscribedUsers() {
 
-						//check for blocked/ignored user
-						fmt.Println(recipient.GetIgnoredUserName())
-						if recipient.GetIgnoredUserName() != senderName {
-							recipient.SendMessageToUser(message)
+					//check for avoiding sending his message to himself
+					if user != senderName {
+
+						//check if the user exists in the chat mangager users map,
+						//check if the message is general, or for this user
+						if recipient, ok := chatManager.users.getUser(user); (receiverName == "" || receiverName == user) && ok {
+
+							//check for blocked/ignored user
+							if recipient.GetIgnoredUserName() != senderName {
+								recipient.SendMessageToUser(message)
+							}
 						}
 					}
 				}
@@ -197,8 +219,8 @@ func (chatManager *ChatManager) Run() {
 //IgnoreUser : allows a user to stop receiving message from a sender other than system
 func (chatManager *ChatManager) ignoreUser(userName string, ignoredUserName string) {
 
-	if user, ok := chatManager.users[userName]; ok {
-		if _, isPresent := chatManager.users[ignoredUserName]; isPresent {
+	if user, ok := chatManager.users.getUser(userName); ok {
+		if _, isPresent := chatManager.users.getUser(ignoredUserName); isPresent {
 			user.SetIgnoredUserName(ignoredUserName)
 		}
 	}
@@ -207,7 +229,7 @@ func (chatManager *ChatManager) ignoreUser(userName string, ignoredUserName stri
 //unIgnoreUser : allow user from to receive message
 func (chatManager *ChatManager) unIgnoreUser(userName string, ignoredUserName string) {
 
-	if user, ok := chatManager.users[userName]; ok {
+	if user, ok := chatManager.users.getUser(userName); ok {
 		if user.GetIgnoredUserName() == ignoredUserName {
 			user.SetIgnoredUserName("")
 		}

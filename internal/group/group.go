@@ -17,6 +17,9 @@ func (g *Group) GetGroupName() string {
 
 //AddUserToGroup : add userName to group
 func (g *Group) AddUserToGroup(userName string) bool {
+	g.mutex.Lock()
+	defer g.mutex.Unlock()
+
 	if _, ok := g.users[userName]; !ok {
 		g.users[userName] = struct{}{}
 		return true
@@ -26,6 +29,9 @@ func (g *Group) AddUserToGroup(userName string) bool {
 
 //RemoveUserFromGroup : remove user from group
 func (g *Group) RemoveUserFromGroup(userName string) {
+	g.mutex.Lock()
+	defer g.mutex.Unlock()
+
 	if _, ok := g.users[userName]; ok {
 		delete(g.users, userName)
 	}
@@ -38,10 +44,20 @@ func (g *Group) CreateSystemMessage(text string) message.IMessage {
 
 //GetSubscribedUsers : return subscribed user map
 func (g *Group) GetSubscribedUsers() map[string]struct{} {
-	return g.users
+	g.mutex.RLock()
+	defer g.mutex.RUnlock()
+
+	userMap := make(map[string]struct{}, len(g.users))
+	for k, v := range g.users {
+		userMap[k] = v
+	}
+	return userMap
 }
 
 //GetSubscribedUsersCount : returns counts of user subscribed to the group
 func (g *Group) GetSubscribedUsersCount() int {
+	g.mutex.RLock()
+	defer g.mutex.RUnlock()
+
 	return len(g.users)
 }

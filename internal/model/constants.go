@@ -3,6 +3,9 @@ package model
 const (
 	//MaxUserMessageQueueLen :Maximum message buffer per user
 	MaxUserMessageQueueLen int = 5
+
+	//MaxChatManagerMessageQueueLen : Maximum message buffer for chat manager
+	MaxChatManagerMessageQueueLen int = 10
 )
 
 const (

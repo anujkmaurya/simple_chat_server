@@ -124,7 +124,6 @@ func HandleUserConnection(chatManager chatmanager.IChatManager, conn net.Conn) {
 		for scanner.Scan() {
 			//check for scanner error
 			if scanner.Err() != nil {
-				fmt.Println("sanner error")
 				return
 			}
 
