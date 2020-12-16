@@ -152,6 +152,15 @@ extract simple_chat_server.zip and navigate to simple_chat_server folder
 
 `docker run -p 9000:9000 -it --rm --name chat-server chat-server`
 
+
+## Connect as an User with the chat server
+
+once the chat server has started, we can connect to it usinng telnet :
+`telnet host port`
+
+Example : `telnet localhost 9000`
+
+
 ## Extra Features
 
 1. Group Wise chat : users can join a group. If the group is not created, it will created first and then user will be switched to this new group. Users can choose to leave group also, on leaving user will be to switched to "common" group.
@@ -172,5 +181,6 @@ extract simple_chat_server.zip and navigate to simple_chat_server folder
 6. We can add more testcases, write benchmark test and integration testcase.
 7. We can spin a http server from main in the go routine and expose various endpoints to make various announcements as a system : POST /groups/{group_name}
 8. Add authentication before allowing user to start chat session.
+9. Using context by passing it through each function for stopping process if client connection breaks. It also helps in tracing the call stack.
 
 
