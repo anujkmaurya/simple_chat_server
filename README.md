@@ -23,7 +23,7 @@ A simple chat application having the following functionalities:
 ### Packages
 1. `config` :defines the configurations structure
 2. `internal/chatmanager` : chatmanager structure and methods. It is responsible for reading user input and performing various actions along with broadcasting message
-3.` internal/command` : command defines the list of alllowed messages/commands, methods to parse messages
+3. ` internal/command` : command defines the list of alllowed messages/commands, methods to parse messages
 4. `internal/group` : contains group structure and it's methods.
 5. `internal/message` : contains message structure and it's methods. This message is created to pass user or system message with various metadata info
 6. `internal/model` : defines all the constants used by all the packages
