@@ -28,6 +28,9 @@ func (u *User) GetCurrentUserGroup() string {
 //SetCurrentUserGroup : set the given group as the current group
 //if group is new, add it to the user's subscribed group list
 func (u *User) SetCurrentUserGroup(groupName string) {
+	u.mutex.Lock()
+	defer u.mutex.Unlock()
+
 	u.currentGroup = groupName
 
 	//if group already not present, add it to users's group map
@@ -38,7 +41,14 @@ func (u *User) SetCurrentUserGroup(groupName string) {
 
 //GetAllUserGroups : returns a map of all the subscribed
 func (u *User) GetAllUserGroups() map[string]struct{} {
-	return u.groups
+	u.mutex.RLock()
+	defer u.mutex.RUnlock()
+
+	userGroup := make(map[string]struct{}, len(u.groups))
+	for k, v := range u.groups {
+		userGroup[k] = v
+	}
+	return userGroup
 }
 
 //GetIgnoredUserName : gives ignored user name

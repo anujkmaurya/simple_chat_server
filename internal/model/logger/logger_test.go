@@ -14,7 +14,7 @@ func TestInitLogger(t *testing.T) {
 		{
 			name: "Testcase 1",
 			args: args{
-				logfilePath: "testfile",
+				logfilePath: "../../mock/files/testfile",
 			},
 			wantErr: false,
 		},

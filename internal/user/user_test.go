@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"simple_chat_server/internal/message"
 	"simple_chat_server/internal/model"
+	"sync"
 	"testing"
 )
 
@@ -14,6 +15,7 @@ func TestUser_GetUserName(t *testing.T) {
 		currentGroup string
 		ignoredUser  string
 		groups       map[string]struct{}
+		mutex        *sync.RWMutex
 	}
 	tests := []struct {
 		name   string
@@ -27,6 +29,7 @@ func TestUser_GetUserName(t *testing.T) {
 				out:          make(chan message.IMessage, model.MaxUserMessageQueueLen),
 				currentGroup: model.CommonGroup,
 				groups:       make(map[string]struct{}, 0),
+				mutex:        &sync.RWMutex{},
 			},
 			want: "testUser",
 		},
@@ -39,6 +42,7 @@ func TestUser_GetUserName(t *testing.T) {
 				currentGroup: tt.fields.currentGroup,
 				ignoredUser:  tt.fields.ignoredUser,
 				groups:       tt.fields.groups,
+				mutex:        tt.fields.mutex,
 			}
 			if got := u.GetUserName(); got != tt.want {
 				t.Errorf("User.GetUserName() = %v, want %v", got, tt.want)
@@ -54,6 +58,7 @@ func TestUser_GetOutChannel(t *testing.T) {
 		currentGroup string
 		ignoredUser  string
 		groups       map[string]struct{}
+		mutex        *sync.RWMutex
 	}
 	outChannel := make(chan message.IMessage, model.MaxUserMessageQueueLen)
 	tests := []struct {
@@ -68,6 +73,7 @@ func TestUser_GetOutChannel(t *testing.T) {
 				out:          outChannel,
 				currentGroup: model.CommonGroup,
 				groups:       make(map[string]struct{}, 0),
+				mutex:        &sync.RWMutex{},
 			},
 			want: outChannel,
 		},
@@ -80,6 +86,7 @@ func TestUser_GetOutChannel(t *testing.T) {
 				currentGroup: tt.fields.currentGroup,
 				ignoredUser:  tt.fields.ignoredUser,
 				groups:       tt.fields.groups,
+				mutex:        tt.fields.mutex,
 			}
 			if got := u.GetOutChannel(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("User.GetOutChannel() = %v, want %v", got, tt.want)
@@ -95,6 +102,7 @@ func TestUser_SendMessageToUser(t *testing.T) {
 		currentGroup string
 		ignoredUser  string
 		groups       map[string]struct{}
+		mutex        *sync.RWMutex
 	}
 	type args struct {
 		message message.IMessage
@@ -115,6 +123,7 @@ func TestUser_SendMessageToUser(t *testing.T) {
 				out:          make(chan message.IMessage, model.MaxUserMessageQueueLen),
 				currentGroup: model.CommonGroup,
 				groups:       make(map[string]struct{}, 0),
+				mutex:        &sync.RWMutex{},
 			},
 			args: args{
 				message: msg,
@@ -130,6 +139,7 @@ func TestUser_SendMessageToUser(t *testing.T) {
 				currentGroup: tt.fields.currentGroup,
 				ignoredUser:  tt.fields.ignoredUser,
 				groups:       tt.fields.groups,
+				mutex:        tt.fields.mutex,
 			}
 			go u.SendMessageToUser(tt.args.message)
 
@@ -147,6 +157,7 @@ func TestUser_GetCurrentUserGroup(t *testing.T) {
 		currentGroup string
 		ignoredUser  string
 		groups       map[string]struct{}
+		mutex        *sync.RWMutex
 	}
 	tests := []struct {
 		name   string
@@ -160,6 +171,7 @@ func TestUser_GetCurrentUserGroup(t *testing.T) {
 				out:          make(chan message.IMessage, model.MaxUserMessageQueueLen),
 				currentGroup: model.CommonGroup,
 				groups:       make(map[string]struct{}, 0),
+				mutex:        &sync.RWMutex{},
 			},
 			want: model.CommonGroup,
 		},
@@ -172,6 +184,7 @@ func TestUser_GetCurrentUserGroup(t *testing.T) {
 				currentGroup: tt.fields.currentGroup,
 				ignoredUser:  tt.fields.ignoredUser,
 				groups:       tt.fields.groups,
+				mutex:        tt.fields.mutex,
 			}
 			if got := u.GetCurrentUserGroup(); got != tt.want {
 				t.Errorf("User.GetCurrentUserGroup() = %v, want %v", got, tt.want)
@@ -187,6 +200,7 @@ func TestUser_SetCurrentUserGroup(t *testing.T) {
 		currentGroup string
 		ignoredUser  string
 		groups       map[string]struct{}
+		mutex        *sync.RWMutex
 	}
 	type args struct {
 		groupName string
@@ -204,6 +218,7 @@ func TestUser_SetCurrentUserGroup(t *testing.T) {
 				out:          make(chan message.IMessage, model.MaxUserMessageQueueLen),
 				currentGroup: "",
 				groups:       make(map[string]struct{}, 0),
+				mutex:        &sync.RWMutex{},
 			},
 			args: args{
 				groupName: model.CommonGroup,
@@ -219,6 +234,7 @@ func TestUser_SetCurrentUserGroup(t *testing.T) {
 				currentGroup: tt.fields.currentGroup,
 				ignoredUser:  tt.fields.ignoredUser,
 				groups:       tt.fields.groups,
+				mutex:        tt.fields.mutex,
 			}
 			u.SetCurrentUserGroup(tt.args.groupName)
 			if got := u.GetCurrentUserGroup(); got != tt.want {
