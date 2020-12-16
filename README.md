@@ -1,6 +1,22 @@
 # Simple chat Server
 
-A simpe chat application purely over TCP
+A simple chat application having the following functionalities:
+1. The user can join the chat server using Telnet : `telnet ip port`
+2. The user can choose a non-existing username for chatting.
+3. The user can create a new group and subscribe a group. User can also join an existing group. By default `common` group is created and a new user is automatically assigned this group.
+4. The user can leave a group (other than `common` group).
+5. The user can choose to ignore messages from a particular user in a group
+6. The user can unignore an user, i.e. allow the user again to receive messages fromm that user
+7. The user can choose to send a personal message to any person in a group. This message will not be broadcasted and can be used for one to one discussion.
+8. Logging all the conversation along with in the defined log file
+
+## Commands Supported 
+
+1. `--joingroup <group name>` : create and join a group 
+2. `--leavegroup <group name>` : leave a non-common group
+3. `--ignoreuser <user name>` : ignore an user, stop receiving message from that user all groups
+4. `--unignoreuser <user name>` : unignore an user, resume  receiving message from that user
+5. `--personal <username>` : send personal message to any user
 
 ## Code Structure
 
@@ -75,10 +91,6 @@ A simpe chat application purely over TCP
 
 ```
 
-### Important Points 
-
-
-
 ## Running and building
 
 Compile and Run App using Binary
@@ -87,21 +99,10 @@ Compile and Run App using Binary
 ### Pre-Requisite
 
 1. Golang1.15.4 - Install 'go1.15.4' version from https://golang.org/dl/.
-
-### Steps:
-
-1. Create folder  `github.com/personal-work/` in `~/go/src/` directory in your laptop.
-2. clone or download the files
-3. extract and move the folder `message_delivery_sys` to `~/go/src/github.com/personal-work/` directory
-4. go to `~/go/src/github.com/personal-work/message_delivery_sys`
-5. resolve dependencies using `dep ensure -v`
-6. Compile and build using command `make build`
-7. go to `build` directory and Run the binary file `./server` on one terminal
-8. go to `build` directory and Run the binary file `./client` on another terminal
-9. repeat step 8, to spawn as many client limited to 255 
-
+2. checkout the project folder
+2. run `make`
 
 ## Testing
 
-1. follow all the ![Pre-Requisite] and steps 1-5 of ![Steps]
-2. run command `make test`
+1. run command `make test` for running testcases and showing detailed test result
+2. `make test-short` for  running testcases and showing test result in short
