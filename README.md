@@ -31,6 +31,7 @@ A simple chat application having the following functionalities:
 8. `internal/user` : contains user structure and it's methods.
 9. `cmd/server` : contains server startup file. It reads from the config and inits chatmanager package
 10. `etc/simple-chat-server` : contains configuration script for each environment
+11. `internal/mock` : contains the mock config, mock log files
 
 ### File Tree
 
@@ -47,7 +48,9 @@ A simple chat application having the following functionalities:
 │       └── server.go
 ├── config
 │   ├── config.go
+│   ├── config_test.go
 │   ├── init.go
+│   ├── init_test.go
 │   └── types.go
 ├── etc
 │   └── simple-chat-server
@@ -57,24 +60,39 @@ A simple chat application having the following functionalities:
 ├── go.sum
 └── internal
     ├── chatmanager
+    │   ├── groupmap.go
+    │   ├── groupmap_test.go
     │   ├── init.go
+    │   ├── init_test.go
     │   ├── interface.go
     │   ├── manager.go
     │   ├── manager.usecase.go
-    │   └── types.go
+    │   ├── types.go
+    │   ├── usermap.go
+    │   └── usermap_test.go
     ├── command
     │   ├── command.go
+    │   ├── command_test.go
     │   └── types.go
     ├── group
     │   ├── group.go
+    │   ├── group_test.go
     │   ├── init.go
+    │   ├── init_test.go
     │   ├── interface.go
     │   └── types.go
     ├── message
     │   ├── init.go
+    │   ├── init_test.go
     │   ├── interface.go
     │   ├── message.go
+    │   ├── message_test.go
     │   └── types.go
+    ├── mock
+    │   ├── config
+    │   │   └── config-mock.ini
+    │   └── files
+    │       └── testfile
     ├── model
     │   ├── config.constant.go
     │   ├── constants.go
@@ -88,6 +106,7 @@ A simple chat application having the following functionalities:
         ├── types.go
         ├── user.go
         └── user_test.go
+
 
 ```
 
